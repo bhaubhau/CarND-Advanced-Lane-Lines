@@ -53,6 +53,7 @@ for fname in images:
         undist = cv2.undistort(img, mtx, dist, None, mtx)
         outputfile=fname.replace(calibration_input_folder, undistort_output_folder)
         cv2.imwrite(outputfile, img)
-
+    else:
+        print('Points not found for ' + fname)
 
 #cv2.destroyAllWindows()
