@@ -55,12 +55,15 @@ for fname in images:
 #cv2.destroyAllWindows()
 
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img.shape[1:], None, None)
+def get_undistorted_image(image):
+    return cv2.undistort(image, mtx, dist, None, mtx)
 
 for fname in images:
     img = cv2.imread(fname)    
-    undist = cv2.undistort(img, mtx, dist, None, mtx)
+    undist = get_undistorted_image(img)
     outputfile=fname.replace(calibration_input_folder, undistort_output_folder)
     cv2.imwrite(outputfile, undist)
 
 ###################################################################################################
 ###################################################################################################
+
