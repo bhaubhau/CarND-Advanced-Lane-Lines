@@ -78,5 +78,22 @@ undist = get_undistorted_image(img)
 cv2.imwrite(test_images_output_folder + 'undistorted_' + test_file, undist)
 
 ###################################################################################################
-####################################Thresholding
+####################################Colorspace Separation
 ###################################################################################################
+images = glob.glob(test_images_input_folder + '*.jpg')
+for fname in images:
+    img = cv2.imread(fname)
+    hls_img = cv2.cvtColor(img,cv2.COLOR_BGR2HLS)  
+    outputfile=fname.replace(test_images_input_folder, test_images_output_folder)  
+
+    H = hls_img[:,:,0]
+    L = hls_img[:,:,1]
+    S = hls_img[:,:,2]
+    outputfile_H=outputfile.replace('.jpg','_H.jpg')
+    outputfile_L=outputfile.replace('.jpg','_L.jpg')
+    outputfile_S=outputfile.replace('.jpg','_S.jpg')
+    
+    cv2.imwrite(outputfile, hls_img)
+    cv2.imwrite(outputfile_H, H)
+    cv2.imwrite(outputfile_L, L)
+    cv2.imwrite(outputfile_S, S)
