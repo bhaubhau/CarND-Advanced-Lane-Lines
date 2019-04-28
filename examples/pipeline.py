@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import glob
 import matplotlib.pyplot as plt
+#import matplotlib.image as mpimg
 import os
 
 ###################################################################################################
@@ -97,3 +98,40 @@ for fname in images:
     cv2.imwrite(outputfile_H, H)
     cv2.imwrite(outputfile_L, L)
     cv2.imwrite(outputfile_S, S)
+
+###################################################################################################
+####################################Gradient calculation
+###################################################################################################
+def abs_sobel_thresh(img, orient='x', sobel_kernel=3, mag_thresh=(0, 255)):
+    # Convert to grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # Apply x or y gradient with the OpenCV Sobel() function
+    # and take the absolute value
+    if orient == 'x':
+        abs_sobel = np.absolute(cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=sobel_kernel))
+    if orient == 'y':
+        abs_sobel = np.absolute(cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=sobel_kernel))
+    # Rescale back to 8 bit integer
+    scaled_sobel = np.uint8(255*abs_sobel/np.max(abs_sobel))
+    # Create a copy and apply the threshold
+    binary_output = np.zeros_like(scaled_sobel)
+    # Here I'm using inclusive (>=, <=) thresholds, but exclusive is ok too
+    binary_output[(scaled_sobel >= mag_thresh[0]) & (scaled_sobel <= mag_thresh[1])] = 255
+
+    # Return the result
+    return binary_output
+
+
+images = glob.glob(test_images_input_folder + '*.jpg')
+for fname in images:
+    img = cv2.imread(fname)
+  
+    outputfile=fname.replace(test_images_input_folder, test_images_output_folder)
+    outputfile_SX=outputfile.replace('.jpg','_SX.jpg')
+    outputfile_SY=outputfile.replace('.jpg','_SY.jpg')
+    
+    cv2.imwrite(outputfile_SX, abs_sobel_thresh(img,'x',3,(20,200)))
+    cv2.imwrite(outputfile_SY, abs_sobel_thresh(img,'y',3,(20,200)))
+
+    #mpimg.imsave(outputfile_SX, abs_sobel_thresh(img,'x',20,200))
+    #mpimg.imsave(outputfile_SY, abs_sobel_thresh(img,'y',20,200))
