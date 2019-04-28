@@ -56,4 +56,4 @@ for fname in images:
     img = cv2.imread(fname)    
     undist = cv2.undistort(img, mtx, dist, None, mtx)
     outputfile=fname.replace(calibration_input_folder, undistort_output_folder)
-    cv2.imwrite(outputfile, img)
+    cv2.imwrite(outputfile, undist)
