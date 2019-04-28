@@ -14,9 +14,12 @@ if not os.path.exists(calibration_output_folder):
 if not os.path.exists(undistort_output_folder):
     os.mkdir(undistort_output_folder)
 
+nx=9
+ny=6
+
 # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
-objp = np.zeros((6*9,3), np.float32)
-objp[:,:2] = np.mgrid[0:9,0:6].T.reshape(-1,2)
+objp = np.zeros((ny*nx,3), np.float32)
+objp[:,:2] = np.mgrid[0:nx,0:ny].T.reshape(-1,2)
 
 # Arrays to store object points and image points from all the images.
 objpoints = [] # 3d points in real world space
@@ -31,7 +34,7 @@ for fname in images:
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
     # Find the chessboard corners
-    ret, corners = cv2.findChessboardCorners(gray, (9,6),None)
+    ret, corners = cv2.findChessboardCorners(gray, (nx,ny),None)
 
     # If found, add object points, image points
     if ret == True:
@@ -40,7 +43,7 @@ for fname in images:
 
         # Draw and display the corners
         img_corners=np.copy(img)
-        img_corners = cv2.drawChessboardCorners(img_corners, (9,6), corners, ret)
+        img_corners = cv2.drawChessboardCorners(img_corners, (nx,ny), corners, ret)
         outputfile=fname.replace(calibration_input_folder, calibration_output_folder)
         cv2.imwrite(outputfile, img_corners)
         #cv2.imshow('img',img)
