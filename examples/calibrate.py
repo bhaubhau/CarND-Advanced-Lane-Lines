@@ -41,19 +41,19 @@ for fname in images:
         objpoints.append(objp)
         imgpoints.append(corners)
 
-        # Draw and display the corners
-        img_corners=np.copy(img)
-        img_corners = cv2.drawChessboardCorners(img_corners, (nx,ny), corners, ret)
+        # Draw and display the corners        
+        img = cv2.drawChessboardCorners(img, (nx,ny), corners, ret)
         outputfile=fname.replace(calibration_input_folder, calibration_output_folder)
-        cv2.imwrite(outputfile, img_corners)
-        #cv2.imshow('img',img)
-        #cv2.waitKey(500)
-
-        ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img.shape[1:], None, None)
-        undist = cv2.undistort(img, mtx, dist, None, mtx)
-        outputfile=fname.replace(calibration_input_folder, undistort_output_folder)
         cv2.imwrite(outputfile, img)
+        #cv2.imshow('img',img)
+        #cv2.waitKey(500)      
     else:
         print('Points not found for ' + fname)
-
 #cv2.destroyAllWindows()
+
+ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img.shape[1:], None, None)
+for fname in images:
+    img = cv2.imread(fname)    
+    undist = cv2.undistort(img, mtx, dist, None, mtx)
+    outputfile=fname.replace(calibration_input_folder, undistort_output_folder)
+    cv2.imwrite(outputfile, img)
