@@ -51,7 +51,7 @@ for fname in images:
         #cv2.imshow('img',img)
         #cv2.waitKey(500)      
     else:
-        print('Points not found for ' + fname)
+        print('Chessboard corner points not found for ' + fname)
 #cv2.destroyAllWindows()
 
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img.shape[1:], None, None)
@@ -66,4 +66,17 @@ for fname in images:
 
 ###################################################################################################
 ###################################################################################################
+test_images_input_folder='../test_images/'
+test_images_output_folder='../test_images_output/'
 
+if not os.path.exists(test_images_output_folder):
+    os.mkdir(test_images_output_folder)
+
+test_file = 'test3.jpg'
+img = cv2.imread(test_images_input_folder + test_file)
+undist = get_undistorted_image(img)
+cv2.imwrite(test_images_output_folder + 'undistorted_' + test_file, undist)
+
+###################################################################################################
+####################################Thresholding
+###################################################################################################
