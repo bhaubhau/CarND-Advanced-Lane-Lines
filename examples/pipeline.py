@@ -210,11 +210,9 @@ def combined_binary(img):
 ###################################################################################################
 ####################################Perspective transform
 ###################################################################################################
-images = glob.glob(test_images_input_folder + '*.jpg')
-for fname in images:
-    img = cv2.imread(fname)
-    img_size = (img.shape[1], img.shape[0])
+def warp(img): 
 
+    img_size = (img.shape[1], img.shape[0])
     src = np.float32(
         [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
         [((img_size[0] / 6) - 10), img_size[1]],
@@ -229,6 +227,10 @@ for fname in images:
     undistort=get_undistorted_image(img)
     M = cv2.getPerspectiveTransform(src, dest)
     warped = cv2.warpPerspective(undistort, M, img_size)
+    return warped
 
-    outputfile=fname.replace(test_images_input_folder, test_images_output_folder)
-    cv2.imwrite(outputfile, warped)
+# images = glob.glob(test_images_input_folder + '*.jpg')
+# for fname in images:
+#     img = cv2.imread(fname)
+#     outputfile=fname.replace(test_images_input_folder, test_images_output_folder)
+#     cv2.imwrite(outputfile, warp(img))
