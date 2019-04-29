@@ -10,13 +10,13 @@ import os
 ###################################################################################################
 calibration_input_folder='../camera_cal/'
 #chessboard_corners_output_folder='../camera_cal_output/'
-undistort_output_folder='../undistort_output/'
+#undistort_output_folder='../undistort_output/'
 
 # if not os.path.exists(chessboard_corners_output_folder):
 #     os.mkdir(chessboard_corners_output_folder)
 
-if not os.path.exists(undistort_output_folder):
-    os.mkdir(undistort_output_folder)
+# if not os.path.exists(undistort_output_folder):
+#     os.mkdir(undistort_output_folder)
 
 # Arrays to store object points and image points from all the images.
 objpoints = [] # 3d points in real world space
@@ -59,11 +59,11 @@ ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img.sha
 def get_undistorted_image(image):
     return cv2.undistort(image, mtx, dist, None, mtx)
 
-for fname in images:
-    img = cv2.imread(fname)    
-    undist = get_undistorted_image(img)
-    outputfile=fname.replace(calibration_input_folder, undistort_output_folder)
-    cv2.imwrite(outputfile, undist)
+# for fname in images:
+#     img = cv2.imread(fname)    
+#     undist = get_undistorted_image(img)
+#     outputfile=fname.replace(calibration_input_folder, undistort_output_folder)
+#     cv2.imwrite(outputfile, undist)
 
 ###################################################################################################
 ###################################################################################################
@@ -73,31 +73,38 @@ test_images_output_folder='../test_images_output/'
 if not os.path.exists(test_images_output_folder):
     os.mkdir(test_images_output_folder)
 
-test_file = 'test3.jpg'
-img = cv2.imread(test_images_input_folder + test_file)
-undist = get_undistorted_image(img)
-cv2.imwrite(test_images_output_folder + 'undistorted_' + test_file, undist)
+# test_file = 'test3.jpg'
+# img = cv2.imread(test_images_input_folder + test_file)
+# undist = get_undistorted_image(img)
+# cv2.imwrite(test_images_output_folder + 'undistorted_' + test_file, undist)
 
 ###################################################################################################
 ####################################Colorspace Separation
 ###################################################################################################
-images = glob.glob(test_images_input_folder + '*.jpg')
-for fname in images:
-    img = cv2.imread(fname)
+def s_thresh(img, mag_thresh=(0, 255)):
     hls_img = cv2.cvtColor(img,cv2.COLOR_BGR2HLS)  
-    outputfile=fname.replace(test_images_input_folder, test_images_output_folder)  
+    S = hls_img[:,:,2]    
+    binary_output = np.zeros_like(S)
+    binary_output[(S >= mag_thresh[0]) & (S <= mag_thresh[1])] = 255
+    return binary_output
 
-    H = hls_img[:,:,0]
-    L = hls_img[:,:,1]
-    S = hls_img[:,:,2]
-    outputfile_H=outputfile.replace('.jpg','_H.jpg')
-    outputfile_L=outputfile.replace('.jpg','_L.jpg')
-    outputfile_S=outputfile.replace('.jpg','_S.jpg')
+# images = glob.glob(test_images_input_folder + '*.jpg')
+# for fname in images:
+#     img = cv2.imread(fname)
+#     hls_img = cv2.cvtColor(img,cv2.COLOR_BGR2HLS)  
+#     outputfile=fname.replace(test_images_input_folder, test_images_output_folder)  
+
+#     H = hls_img[:,:,0]
+#     L = hls_img[:,:,1]
+#     S = hls_img[:,:,2]
+#     outputfile_H=outputfile.replace('.jpg','_H.jpg')
+#     outputfile_L=outputfile.replace('.jpg','_L.jpg')
+#     outputfile_S=outputfile.replace('.jpg','_S.jpg')
     
-    cv2.imwrite(outputfile, hls_img)
-    cv2.imwrite(outputfile_H, H)
-    cv2.imwrite(outputfile_L, L)
-    cv2.imwrite(outputfile_S, S)
+#     #cv2.imwrite(outputfile, hls_img)
+#     #cv2.imwrite(outputfile_H, H)
+#     #cv2.imwrite(outputfile_L, L)
+#     cv2.imwrite(outputfile_S, S)
 
 ###################################################################################################
 ####################################Gradient calculation
@@ -138,7 +145,7 @@ def mag_thresh(img, sobel_kernel=3, mag_thresh=(0, 255)):
 
     return binary_output
 
-def dir_threshold(img, sobel_kernel=3, thresh=(0, np.pi/2)):
+def dir_thresh(img, sobel_kernel=3, thresh=(0, np.pi/2)):
     # Grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     # Calculate the x and y gradients
@@ -153,20 +160,70 @@ def dir_threshold(img, sobel_kernel=3, thresh=(0, np.pi/2)):
     # Return the binary image
     return binary_output
 
-images = glob.glob(test_images_input_folder + '*.jpg')
-for fname in images:
-    img = cv2.imread(fname)
-  
-    outputfile=fname.replace(test_images_input_folder, test_images_output_folder)
-    outputfile_SX=outputfile.replace('.jpg','_SX.jpg')
-    outputfile_SY=outputfile.replace('.jpg','_SY.jpg')
-    outputfile_MAG=outputfile.replace('.jpg','_MAG.jpg')
-    outputfile_DIR=outputfile.replace('.jpg','_DIR.jpg')
-    
-    cv2.imwrite(outputfile_SX, abs_sobel_thresh(img,'x',3,(20,200)))
-    cv2.imwrite(outputfile_SY, abs_sobel_thresh(img,'y',3,(20,200)))
-    cv2.imwrite(outputfile_MAG, mag_thresh(img,3,(20,200)))
-    cv2.imwrite(outputfile_DIR, dir_threshold(img,3,(0.7,1.3)))
+def comb_grad(img):
+    grad_x_bin_img=abs_sobel_thresh(img,'x',3,(50,150))
+    grad_y_bin_img=abs_sobel_thresh(img,'y',3,(50,150))
+    grad_mag_bin_img=mag_thresh(img,3,(20,200))
+    grad_dir_bin_img=dir_thresh(img,3,(0.7,1.3))
+    combined = np.zeros_like(grad_x_bin_img)
+    combined[((grad_x_bin_img == 255) & (grad_y_bin_img == 255)) | ((grad_mag_bin_img == 255) & (grad_dir_bin_img == 255))] = 255
+    return combined
 
-    #mpimg.imsave(outputfile_SX, abs_sobel_thresh(img,'x',20,200))
-    #mpimg.imsave(outputfile_SY, abs_sobel_thresh(img,'y',20,200))
+def combined_binary(img):    
+    grad_bin_img=comb_grad(img)
+    s_bin_img=s_thresh(img,(170,255))   
+    combined = np.zeros_like(grad_bin_img) 
+    combined[(grad_bin_img==255)|(s_bin_img==255)]=255
+    return combined
+
+# images = glob.glob(test_images_input_folder + '*.jpg')
+# for fname in images:
+#     img = cv2.imread(fname)
+  
+#     outputfile=fname.replace(test_images_input_folder, test_images_output_folder)
+#     # outputfile_SX=outputfile.replace('.jpg','_SX.jpg')
+#     # outputfile_SY=outputfile.replace('.jpg','_SY.jpg')
+#     # outputfile_MAG=outputfile.replace('.jpg','_MAG.jpg')
+#     # outputfile_DIR=outputfile.replace('.jpg','_DIR.jpg')
+#     outputfile_COMB=outputfile.replace('.jpg','_COMB.jpg')
+    
+#     # grad_x_bin_img=abs_sobel_thresh(img,'x',3,(20,200))
+#     # grad_y_bin_img=abs_sobel_thresh(img,'y',3,(20,200))
+#     # grad_mag_bin_img=mag_thresh(img,3,(20,200))
+#     # grad_dir_bin_img=dir_thresh(img,3,(0.7,1.3))
+    
+#     # cv2.imwrite(outputfile_SX, grad_x_bin_img)
+#     # cv2.imwrite(outputfile_SY, grad_y_bin_img)
+#     # cv2.imwrite(outputfile_MAG, grad_mag_bin_img)
+#     # cv2.imwrite(outputfile_DIR, grad_dir_bin_img)
+
+#     # combined = np.zeros_like(grad_x_bin_img)
+#     # combined[((grad_x_bin_img == 255) & (grad_y_bin_img == 255)) | ((grad_mag_bin_img == 255) & (grad_dir_bin_img == 255))] = 255
+
+#     # cv2.imwrite(outputfile_COMB, combined)
+
+#     #mpimg.imsave(outputfile_SX, abs_sobel_thresh(img,'x',20,200))
+#     #mpimg.imsave(outputfile_SY, abs_sobel_thresh(img,'y',20,200))
+
+#     cv2.imwrite(outputfile_COMB, combined_binary(img))
+
+###################################################################################################
+####################################Finding ROI for all test images
+###################################################################################################
+#combining all the binary images of all the images in test_images folder to get ROI
+# images = glob.glob(test_images_input_folder + '*.jpg')
+# all_binary=np.zeros_like(combined_binary(img))
+# for fname in images:
+#     img = cv2.imread(fname)
+#     combined=combined_binary(get_undistorted_image(img))
+#     all_binary[(all_binary==255)|(combined==255)]=255
+
+# cv2.imwrite(test_images_output_folder + 'all_binary.jpg', all_binary)
+# plt.imshow(all_binary, cmap='gray')
+# plt.show()
+
+#Taking ROI from the generated image as below[(170, 720),(590,440),(720,440),(1160,720)]
+
+###################################################################################################
+####################################Perspective transform
+###################################################################################################
