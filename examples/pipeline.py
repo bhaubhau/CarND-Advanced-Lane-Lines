@@ -208,22 +208,27 @@ def combined_binary(img):
 #     cv2.imwrite(outputfile_COMB, combined_binary(img))
 
 ###################################################################################################
-####################################Finding ROI for all test images
-###################################################################################################
-#combining all the binary images of all the images in test_images folder to get ROI
-# images = glob.glob(test_images_input_folder + '*.jpg')
-# all_binary=np.zeros_like(combined_binary(img))
-# for fname in images:
-#     img = cv2.imread(fname)
-#     combined=combined_binary(get_undistorted_image(img))
-#     all_binary[(all_binary==255)|(combined==255)]=255
-
-# cv2.imwrite(test_images_output_folder + 'all_binary.jpg', all_binary)
-# plt.imshow(all_binary, cmap='gray')
-# plt.show()
-
-#Taking ROI from the generated image as below[(170, 720),(590,440),(720,440),(1160,720)]
-
-###################################################################################################
 ####################################Perspective transform
 ###################################################################################################
+images = glob.glob(test_images_input_folder + '*.jpg')
+for fname in images:
+    img = cv2.imread(fname)
+    img_size = (img.shape[1], img.shape[0])
+
+    src = np.float32(
+        [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
+        [((img_size[0] / 6) - 10), img_size[1]],
+        [(img_size[0] * 5 / 6) + 60, img_size[1]],
+        [(img_size[0] / 2 + 55), img_size[1] / 2 + 100]])
+    dest = np.float32(
+        [[(img_size[0] / 4), 0],
+        [(img_size[0] / 4), img_size[1]],
+        [(img_size[0] * 3 / 4), img_size[1]],
+        [(img_size[0] * 3 / 4), 0]])
+
+    undistort=get_undistorted_image(img)
+    M = cv2.getPerspectiveTransform(src, dest)
+    warped = cv2.warpPerspective(undistort, M, img_size)
+
+    outputfile=fname.replace(test_images_input_folder, test_images_output_folder)
+    cv2.imwrite(outputfile, warped)
