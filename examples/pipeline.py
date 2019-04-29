@@ -233,4 +233,8 @@ def warp(img):
 # for fname in images:
 #     img = cv2.imread(fname)
 #     outputfile=fname.replace(test_images_input_folder, test_images_output_folder)
-#     cv2.imwrite(outputfile, warp(img))
+#     cv2.imwrite(outputfile, combined_binary(warp(img)))
+
+###################################################################################################
+####################################Curve fitting
+###################################################################################################
