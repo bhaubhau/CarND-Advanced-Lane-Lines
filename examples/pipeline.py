@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import glob
 import matplotlib.pyplot as plt
-#import matplotlib.image as mpimg
+import matplotlib.image as mpimg
 import os
 
 ###################################################################################################
@@ -243,6 +243,7 @@ def warp(img):
 test_file = 'test3.jpg'
 img = cv2.imread(test_images_input_folder + test_file)
 binary_warped = combined_binary(warp(img))
+#binary_warped= mpimg.imread('warped_example.jpg')
 
 def find_lane_pixels(binary_warped):
     # Take a histogram of the bottom half of the image
@@ -334,6 +335,9 @@ def fit_polynomial(binary_warped):
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
 
+    print(left_fit)
+    print(right_fit)
+
     # Generate x and y values for plotting
     ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
     try:
@@ -344,6 +348,8 @@ def fit_polynomial(binary_warped):
         print('The function failed to fit a line!')
         left_fitx = 1*ploty**2 + 1*ploty
         right_fitx = 1*ploty**2 + 1*ploty
+
+    
 
     ## Visualization ##
     # Colors in the left and right lane regions
