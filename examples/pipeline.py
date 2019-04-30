@@ -4,6 +4,7 @@ import glob
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import os
+from moviepy.editor import VideoFileClip
 
 ###################################################################################################
 ####################################calibration of camera
@@ -509,3 +510,7 @@ for fname in images:
     outputfile=fname.replace(test_images_input_folder, test_images_output_folder)    
     cv2.imwrite(outputfile, process_image(img))
 
+white_output = test_images_output_folder + '/challenge_video.mp4'
+clip1 = VideoFileClip("../challenge_video.mp4")
+white_clip = clip1.fl_image(process_image) 
+white_clip.write_videofile(white_output, audio=False)
