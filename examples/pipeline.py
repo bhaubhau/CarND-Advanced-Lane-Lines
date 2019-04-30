@@ -229,6 +229,24 @@ def warp(img):
     warped = cv2.warpPerspective(undistort, M, img_size)
     return warped
 
+def unwarp(img): 
+
+    img_size = (img.shape[1], img.shape[0])
+    src = np.float32(
+        [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
+        [((img_size[0] / 6) - 10), img_size[1]],
+        [(img_size[0] * 5 / 6) + 60, img_size[1]],
+        [(img_size[0] / 2 + 55), img_size[1] / 2 + 100]])
+    dest = np.float32(
+        [[(img_size[0] / 4), 0],
+        [(img_size[0] / 4), img_size[1]],
+        [(img_size[0] * 3 / 4), img_size[1]],
+        [(img_size[0] * 3 / 4), 0]])
+
+    Minv = cv2.getPerspectiveTransform(dest, src)
+    unwarped = cv2.warpPerspective(img, Minv, img_size)
+    return unwarped
+
 # images = glob.glob(test_images_input_folder + '*.jpg')
 # for fname in images:
 #     img = cv2.imread(fname)
@@ -240,10 +258,10 @@ def warp(img):
 ###################################################################################################
 ####################################Curve fitting
 ###################################################################################################
-test_file = 'test3.jpg'
-img = cv2.imread(test_images_input_folder + test_file)
-img_warped=warp(img)
-binary_warped = combined_binary(img_warped)
+# test_file = 'test3.jpg'
+# img = cv2.imread(test_images_input_folder + test_file)
+# img_warped=warp(img)
+# binary_warped = combined_binary(img_warped)
 #binary_warped= mpimg.imread('warped_example.jpg')
 
 def find_lane_pixels(binary_warped):
@@ -356,21 +374,21 @@ def fit_polynomial(binary_warped):
     # out_img[righty, rightx] = [0, 0, 255]
 
     # Plots the left and right polynomials on the lane lines
-    plt.plot(left_fitx, ploty, color='red')
-    plt.plot(right_fitx, ploty, color='blue')
+    #plt.plot(left_fitx, ploty, color='red')
+    #plt.plot(right_fitx, ploty, color='blue')
 
     return out_img
 
-out_img = fit_polynomial(binary_warped)
+#out_img = fit_polynomial(binary_warped)
 
-plt.imshow(out_img)
-plt.show()
+#plt.imshow(out_img)
+#plt.show()
 
 ######Polyfit in next frame########
-test_file = 'test4.jpg'
-img = cv2.imread(test_images_input_folder + test_file)
-img_warped=warp(img)
-binary_warped = combined_binary(img_warped)
+# test_file = 'test4.jpg'
+# img = cv2.imread(test_images_input_folder + test_file)
+# img_warped=warp(img)
+# binary_warped = combined_binary(img_warped)
 # Polynomial fit values from the previous frame
 # Make sure to grab the actual values from the previous step in your project!
 #left_fit = np.array([ 1.39704016e-04,-2.94429437e-01,4.80061572e+02])
@@ -438,24 +456,56 @@ def search_around_poly(binary_warped):
     right_line_window2 = np.array([np.flipud(np.transpose(np.vstack([right_fitx, 
                               ploty])))])
     right_line_pts = np.hstack((right_line_window1, right_line_window2))
+    pts = np.hstack((left_line_window1, right_line_window2))
 
     # Draw the lane onto the warped blank image
-    cv2.fillPoly(window_img, np.int_([left_line_pts]), (0,255, 0))
-    cv2.fillPoly(window_img, np.int_([right_line_pts]), (0,255, 0))
-    result = cv2.addWeighted(img_warped, 1, window_img, 0.3, 0)
+    #cv2.fillPoly(window_img, np.int_([left_line_pts]), (0,255, 0))
+    #cv2.fillPoly(window_img, np.int_([right_line_pts]), (0,255, 0))
+    
+    cv2.fillPoly(window_img, np.int_([pts]), (0,255, 0))
+    #cv2.polylines(window_img,np.int_([left_line_window1]),True,(255,0,0),thickness = 5)
+    #cv2.polylines(window_img,np.int_([right_line_window1]),True,(0,0,255),thickness = 5)
+    #result = cv2.addWeighted(img_warped, 1, window_img, 0.3, 0)
     
     # Plot the polynomial lines onto the image
-    plt.plot(left_fitx, ploty, color='red')
-    plt.plot(right_fitx, ploty, color='blue')
+    #plt.plot(left_fitx, ploty, color='red')
+    #plt.plot(right_fitx, ploty, color='blue')
     ## End visualization steps ##
     
-    return result
+    #return result
+    return window_img
 
 # Run image through the pipeline
 # Note that in your project, you'll also want to feed in the previous fits
-result = search_around_poly(binary_warped)
+#result = search_around_poly(binary_warped)
 
 # View your output
-plt.imshow(result)
-plt.show()
+#plt.imshow(result)
+#plt.show()
+
+###################################################################################################
+####################################Image processing
+###################################################################################################
+
+def get_lanes_image_warped(img):
+    img_warped=warp(img)
+    binary_warped = combined_binary(img_warped)
+    fit_polynomial(binary_warped)
+    result = search_around_poly(binary_warped)
+    return result
+
+def get_lanes_image(img):
+    lines_warped=get_lanes_image_warped(img)
+    return unwarp(lines_warped)
+
+def process_image(img):
+    undistort=get_undistorted_image(img)
+    lines_image=get_lanes_image(img)
+    return cv2.addWeighted(undistort, 0.8, lines_image, 1, 0)
+
+images = glob.glob(test_images_input_folder + '*.jpg')
+for fname in images:
+    img = cv2.imread(fname)
+    outputfile=fname.replace(test_images_input_folder, test_images_output_folder)    
+    cv2.imwrite(outputfile, process_image(img))
 
