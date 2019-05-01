@@ -132,11 +132,11 @@ Here's a [link to my video result](./project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-######Challenges faced:
+#####Challenges faced:
 1. Initially was facing challange with calibrating the camera and getting the undistorted images which took lot of time
 2. Being a beginner to python, had to go through the documentation for the functions provided by numpy and opencv from the code provided in solutions
 
-######Improvements:
+#####Improvements:
 1. can try optimizing the performance of the algorithms by trying to initially compute a centered polynomial and then look for lane lines around it
 2. can try using the convolution method provided in the chapter to fit the polynomial
 3. can try using higher order polynomial functions to accomodate multiple curvatures if detected in image
