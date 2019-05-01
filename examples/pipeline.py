@@ -474,7 +474,7 @@ def search_around_poly(binary_warped):
     ## End visualization steps ##
     
     #return result
-    return window_img
+    return left_fitx, right_fitx, ploty, window_img
 
 # Run image through the pipeline
 # Note that in your project, you'll also want to feed in the previous fits
@@ -485,6 +485,21 @@ def search_around_poly(binary_warped):
 #plt.show()
 
 ###################################################################################################
+####################################Radius of Curvature
+###################################################################################################
+def get_radius(left_fitx, right_fitx, ploty):    
+    
+    center_fitx=(left_fitx+right_fitx)/2
+    center_fit = np.polyfit(ploty, center_fitx, 2)
+    
+    ym_per_pix = 30/720 # meters per pixel in y dimension
+    xm_per_pix = 3.7/700 # meters per pixel in x dimension
+    y_eval = np.max(ploty)
+    center_curverad = ((1 + (2*center_fit[0]*y_eval*ym_per_pix + center_fit[1])**2)**1.5) / np.absolute(2*center_fit[0])
+    return str(int(center_curverad))
+
+
+###################################################################################################
 ####################################Image processing
 ###################################################################################################
 def get_lanes_image_warped(img, nextFrame=False):
@@ -492,17 +507,20 @@ def get_lanes_image_warped(img, nextFrame=False):
     binary_warped = combined_binary(img_warped)
     if nextFrame==False:
         fit_polynomial(binary_warped)
-    result = search_around_poly(binary_warped)
-    return result
+    left_fitx, right_fitx, ploty, result = search_around_poly(binary_warped)    
+    return left_fitx, right_fitx, ploty, result
 
 def get_lanes_image(img, nextFrame=False):
-    lines_warped=get_lanes_image_warped(img, nextFrame)
-    return unwarp(lines_warped)
+    left_fitx, right_fitx, ploty, lines_warped=get_lanes_image_warped(img, nextFrame)
+    return left_fitx, right_fitx, ploty, unwarp(lines_warped)
 
 def process_image(img, nextFrame=False):
     undistort=get_undistorted_image(img)
-    lines_image=get_lanes_image(img, nextFrame)
-    return cv2.addWeighted(undistort, 0.8, lines_image, 1, 0)
+    left_fitx, right_fitx, ploty, lines_image=get_lanes_image(img, nextFrame)
+    result=cv2.addWeighted(undistort, 0.8, lines_image, 1, 0)
+    radius=get_radius(left_fitx, right_fitx, ploty)
+    cv2.putText(result,'Radius of Curvature = ' + radius + '(m)', (10,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2)
+    return result
 
 images = glob.glob(test_images_input_folder + '*.jpg')
 for fname in images:
@@ -524,7 +542,7 @@ def process_video_frame(img):
     else:
         return process_image(img, True)
 
-white_output = test_images_output_folder + '/harder_challenge_video.mp4'
-clip1 = VideoFileClip("../harder_challenge_video.mp4")
-white_clip = clip1.fl_image(process_video_frame) 
+white_output = test_images_output_folder + '/challenge_video.mp4'
+clip1 = VideoFileClip("../challenge_video.mp4")
+white_clip = clip1.fl_image(process_image) 
 white_clip.write_videofile(white_output, audio=False)
