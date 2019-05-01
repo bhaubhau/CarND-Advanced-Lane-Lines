@@ -27,7 +27,7 @@ The goals / steps of this project are the following:
 [image3]: ./output_images/006_binary_test2.jpg "Binary Thresholded"
 [perspective_original]: ./test_images/test6.jpg "Road Original"
 [image4]: ./output_images/008_perspective_transformed_test6.jpg "Warped"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
+[image5]: ./output_images/009_polyfitted_test6.jpg "Fit Visual"
 [image6]: ./examples/example_output.jpg "Output"
 [video1]: ./project_video.mp4 "Video"
 
@@ -103,7 +103,8 @@ I verified that my perspective transform was working as expected by drawing the 
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+Then I fitted a second order polynomial on the left and right lanes by using sliding window method.
+Below example shows the fitted polynomial on the above perspective transformed image
 
 ![alt text][image5]
 
