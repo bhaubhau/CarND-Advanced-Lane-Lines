@@ -110,7 +110,7 @@ Below example shows the fitted polynomial on the above perspective transformed i
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-Assuming that the camera and vehicle are in center of the left and right lane lines, I took average of x positions of left and right lane line, and computed second degree polynomial to get the radius of curvature with the given expression and scaling factors. This is implemented in function `get_radius()` in "./examples/pipeline.py"
+I took average of x positions of left and right lane line, and computed second degree polynomial to get the radius of curvature with the given expression and scaling factors. To get the offset of vehicle from center, I took the difference of averaged x positions with center. This is implemented in function `get_radius()` in "./examples/pipeline.py"
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
@@ -124,7 +124,7 @@ I unwarped the plotted polynomial function using inverse perspective transform, 
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to my video result](./output_images/test_images_output/project_video.mp4)
 
 ---
 

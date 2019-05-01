@@ -487,17 +487,27 @@ def search_around_poly(binary_warped):
 ###################################################################################################
 ####################################Radius of Curvature
 ###################################################################################################
-def get_radius(left_fitx, right_fitx, ploty):    
+def get_radius(left_fitx, right_fitx, ploty, center_point):    
     
     center_fitx=(left_fitx+right_fitx)/2
-    center_fit = np.polyfit(ploty, center_fitx, 2)
-    
+    center_fit = np.polyfit(ploty, center_fitx, 2)        
+    center_offsetx=center_point-center_fitx[-1]
+        
     ym_per_pix = 30/720 # meters per pixel in y dimension
     xm_per_pix = 3.7/700 # meters per pixel in x dimension
     y_eval = np.max(ploty)
     center_curverad = ((1 + (2*center_fit[0]*y_eval*ym_per_pix + center_fit[1])**2)**1.5) / np.absolute(2*center_fit[0])
-    return str(int(center_curverad))
-
+    
+    center_offset=round(abs(center_offsetx)*xm_per_pix,2)
+    position_str=""
+    if round(center_offsetx)==0:
+        position_str="Vehicle is on center"
+    elif center_offsetx>0:
+        position_str="Vehicle is " + str(center_offset) + "m left of center"
+    elif center_offsetx<0:
+        position_str="Vehicle is " + str(center_offset) + "m right of center"        
+    
+    return str(int(center_curverad)),position_str
 
 ###################################################################################################
 ####################################Image processing
@@ -518,8 +528,9 @@ def process_image(img, nextFrame=False):
     undistort=get_undistorted_image(img)
     left_fitx, right_fitx, ploty, lines_image=get_lanes_image(img, nextFrame)
     result=cv2.addWeighted(undistort, 0.8, lines_image, 1, 0)
-    radius=get_radius(left_fitx, right_fitx, ploty)
+    radius, center_offset=get_radius(left_fitx, right_fitx, ploty, (undistort.shape[1])/2)
     cv2.putText(result,'Radius of Curvature = ' + radius + '(m)', (10,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2)
+    cv2.putText(result,center_offset, (10,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2)
     return result
 
 images = glob.glob(test_images_input_folder + '*.jpg')
@@ -542,7 +553,14 @@ def process_video_frame(img):
     else:
         return process_image(img, True)
 
-white_output = test_images_output_folder + '/project_video.mp4'
-clip1 = VideoFileClip("../project_video.mp4")
-white_clip = clip1.fl_image(process_video_frame) 
-white_clip.write_videofile(white_output, audio=False)
+def process_video(input_video_path,output_video_path):
+    global initialised
+    initialised=False
+    clip1 = VideoFileClip(input_video_path)
+    white_clip = clip1.fl_image(process_video_frame)
+    white_clip.write_videofile(output_video_path, audio=False)
+
+videos = glob.glob(test_images_input_folder + '*.mp4')
+for fname in videos:    
+    outputfile=fname.replace(test_images_input_folder, test_images_output_folder)    
+    process_video(fname,outputfile)
