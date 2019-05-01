@@ -542,7 +542,7 @@ def process_video_frame(img):
     else:
         return process_image(img, True)
 
-white_output = test_images_output_folder + '/challenge_video.mp4'
-clip1 = VideoFileClip("../challenge_video.mp4")
-white_clip = clip1.fl_image(process_image) 
+white_output = test_images_output_folder + '/project_video.mp4'
+clip1 = VideoFileClip("../project_video.mp4")
+white_clip = clip1.fl_image(process_video_frame) 
 white_clip.write_videofile(white_output, audio=False)

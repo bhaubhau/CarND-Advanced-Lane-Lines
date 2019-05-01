@@ -29,7 +29,7 @@ The goals / steps of this project are the following:
 [image4]: ./output_images/008_perspective_transformed_test6.jpg "Warped"
 [image5]: ./output_images/009_polyfitted_test6.jpg "Fit Visual"
 [image6]: ./output_images/test_images_output/test6.jpg "Output"
-[video1]: ./output_images/challenge_video.mp4 "Video"
+[video1]: ./project_video.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
@@ -124,7 +124,7 @@ I unwarped the plotted polynomial function using inverse perspective transform, 
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Here's a [link to my video result](./output_images/challenge_video.mp4)
+Here's a [link to my video result](./project_video.mp4)
 
 ---
 
@@ -140,3 +140,4 @@ Here's a [link to my video result](./output_images/challenge_video.mp4)
 1. can try optimizing the performance of the algorithms by trying to initially compute a centered polynomial and then look for lane lines around it
 2. can try using the convolution method provided in the chapter to fit the polynomial
 3. can try using higher order polynomial functions to accomodate multiple curvatures if detected in image
+4. Also varying slope of the road can become a problem when doing warping of the image
