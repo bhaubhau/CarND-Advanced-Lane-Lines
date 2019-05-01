@@ -28,7 +28,7 @@ The goals / steps of this project are the following:
 [perspective_original]: ./test_images/test6.jpg "Road Original"
 [image4]: ./output_images/008_perspective_transformed_test6.jpg "Warped"
 [image5]: ./output_images/009_polyfitted_test6.jpg "Fit Visual"
-[image6]: ./examples/example_output.jpg "Output"
+[image6]: ./output_images/test_images_output/test6.jpg "Output"
 [video1]: ./project_video.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
@@ -114,7 +114,7 @@ I did this in lines # through # in my code in `my_other_file.py`
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+I unwarped the plotted polynomial function using inverse perspective transform, and then superimposed it on the original image to get the final image in the function `process_image()`.  Here is an example of my result on a test image:
 
 ![alt text][image6]
 
