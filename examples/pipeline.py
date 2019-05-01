@@ -487,21 +487,21 @@ def search_around_poly(binary_warped):
 ###################################################################################################
 ####################################Image processing
 ###################################################################################################
-
-def get_lanes_image_warped(img):
+def get_lanes_image_warped(img, nextFrame=False):
     img_warped=warp(img)
     binary_warped = combined_binary(img_warped)
-    fit_polynomial(binary_warped)
+    if nextFrame==False:
+        fit_polynomial(binary_warped)
     result = search_around_poly(binary_warped)
     return result
 
-def get_lanes_image(img):
-    lines_warped=get_lanes_image_warped(img)
+def get_lanes_image(img, nextFrame=False):
+    lines_warped=get_lanes_image_warped(img, nextFrame)
     return unwarp(lines_warped)
 
-def process_image(img):
+def process_image(img, nextFrame=False):
     undistort=get_undistorted_image(img)
-    lines_image=get_lanes_image(img)
+    lines_image=get_lanes_image(img, nextFrame)
     return cv2.addWeighted(undistort, 0.8, lines_image, 1, 0)
 
 images = glob.glob(test_images_input_folder + '*.jpg')
@@ -510,7 +510,21 @@ for fname in images:
     outputfile=fname.replace(test_images_input_folder, test_images_output_folder)    
     cv2.imwrite(outputfile, process_image(img))
 
+###################################################################################################
+####################################Video processing
+###################################################################################################
+initialised=False
+def process_video_frame(img):    
+    global left_fit,right_fit,initialised
+    if initialised==False:
+        left_fit=np.array([0,0,0])
+        right_fit=np.array([0,0,0])   
+        initialised=True        
+        return process_image(img)
+    else:
+        return process_image(img, True)
+
 white_output = test_images_output_folder + '/harder_challenge_video.mp4'
 clip1 = VideoFileClip("../harder_challenge_video.mp4")
-white_clip = clip1.fl_image(process_image) 
+white_clip = clip1.fl_image(process_video_frame) 
 white_clip.write_videofile(white_output, audio=False)
