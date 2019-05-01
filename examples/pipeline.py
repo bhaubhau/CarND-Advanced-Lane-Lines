@@ -464,8 +464,8 @@ def search_around_poly(binary_warped):
     #cv2.fillPoly(window_img, np.int_([right_line_pts]), (0,255, 0))
     
     cv2.fillPoly(window_img, np.int_([pts]), (0,255, 0))
-    #cv2.polylines(window_img,np.int_([left_line_window1]),True,(255,0,0),thickness = 5)
-    #cv2.polylines(window_img,np.int_([right_line_window1]),True,(0,0,255),thickness = 5)
+    cv2.polylines(window_img,np.int_([left_line_window1]),False,(0,0,255),thickness = 10)
+    cv2.polylines(window_img,np.int_([right_line_window1]),False,(255,0,0),thickness = 10)
     #result = cv2.addWeighted(img_warped, 1, window_img, 0.3, 0)
     
     # Plot the polynomial lines onto the image
@@ -510,7 +510,7 @@ for fname in images:
     outputfile=fname.replace(test_images_input_folder, test_images_output_folder)    
     cv2.imwrite(outputfile, process_image(img))
 
-white_output = test_images_output_folder + '/challenge_video.mp4'
-clip1 = VideoFileClip("../challenge_video.mp4")
+white_output = test_images_output_folder + '/harder_challenge_video.mp4'
+clip1 = VideoFileClip("../harder_challenge_video.mp4")
 white_clip = clip1.fl_image(process_image) 
 white_clip.write_videofile(white_output, audio=False)
