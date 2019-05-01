@@ -29,7 +29,7 @@ The goals / steps of this project are the following:
 [image4]: ./output_images/008_perspective_transformed_test6.jpg "Warped"
 [image5]: ./output_images/009_polyfitted_test6.jpg "Fit Visual"
 [image6]: ./output_images/test_images_output/test6.jpg "Output"
-[video1]: ./project_video.mp4 "Video"
+[video1]: ./output_images/challenge_video.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
@@ -65,14 +65,14 @@ To demonstrate this step, I will describe how I apply the distortion correction 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of color, gradient, and saturation colorspace thresholds to generate a binary image (sections Colorspace Separation, Gradient calculation in ./examples/pipeline.py")
+I used a combination of color, gradient, and saturation colorspace thresholds to generate a binary image (sections Colorspace Separation, Gradient calculation in "./examples/pipeline.py")
 
 ![alt text][thresholding_original]
 ![alt text][image3]
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The code for my perspective transform includes a function called `warp(img)`, which appears under section Perspective transform in ./examples/pipeline.py".  The `warp()` function takes as inputs an image (`img`).  I chose the hardcode the source and destination points in the following manner:
+The code for my perspective transform includes a function called `warp(img)`, which appears under section Perspective transform in "./examples/pipeline.py".  The `warp()` function takes as inputs an image (`img`).  I chose the hardcode the source and destination points in the following manner:
 
 ```python
 src = np.float32(
@@ -110,7 +110,7 @@ Below example shows the fitted polynomial on the above perspective transformed i
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+Assuming that the camera and vehicle are in center of the left and right lane lines, I took average of x positions of left and right lane line, and computed second degree polynomial to get the radius of curvature with the given expression and scaling factors. This is implemented in function `get_radius()` in "./examples/pipeline.py"
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
@@ -132,4 +132,11 @@ Here's a [link to my video result](./project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+######Challenges faced:
+1. Initially was facing challange with calibrating the camera and getting the undistorted images which took lot of time
+2. Being a beginner to python, had to go through the documentation for the functions provided by numpy and opencv from the code provided in solutions
+
+######Improvements:
+1. can try optimizing the performance of the algorithms by trying to initially compute a centered polynomial and then look for lane lines around it
+2. can try using the convolution method provided in the chapter to fit the polynomial
+3. can try using higher order polynomial functions to accomodate multiple curvatures if detected in image
