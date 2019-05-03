@@ -489,12 +489,12 @@ def search_around_poly(binary_warped):
 ###################################################################################################
 def get_radius(left_fitx, right_fitx, ploty, center_point):    
     
-    center_fitx=(left_fitx+right_fitx)/2
-    center_fit = np.polyfit(ploty, center_fitx, 2)        
-    center_offsetx=center_point-center_fitx[-1]
-        
     ym_per_pix = 30/720 # meters per pixel in y dimension
     xm_per_pix = 3.7/700 # meters per pixel in x dimension
+    center_fitx=(left_fitx+right_fitx)/2
+    center_fit = np.polyfit(ploty*ym_per_pix, center_fitx*xm_per_pix, 2)        
+    center_offsetx=center_point-center_fitx[-1]        
+    
     y_eval = np.max(ploty)
     center_curverad = ((1 + (2*center_fit[0]*y_eval*ym_per_pix + center_fit[1])**2)**1.5) / np.absolute(2*center_fit[0])
     
@@ -556,6 +556,7 @@ def process_video_frame(img):
 def process_video(input_video_path,output_video_path):
     global initialised
     initialised=False
+    #clip1 = VideoFileClip(input_video_path).subclip(0,5)
     clip1 = VideoFileClip(input_video_path)
     white_clip = clip1.fl_image(process_video_frame)
     white_clip.write_videofile(output_video_path, audio=False)
