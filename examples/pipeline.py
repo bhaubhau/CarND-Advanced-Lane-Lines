@@ -502,9 +502,9 @@ def get_radius(left_fitx, right_fitx, ploty, center_point):
     position_str=""
     if round(center_offsetx)==0:
         position_str="Vehicle is on center"
-    elif center_offsetx>0:
-        position_str="Vehicle is " + str(center_offset) + "m left of center"
     elif center_offsetx<0:
+        position_str="Vehicle is " + str(center_offset) + "m left of center"
+    elif center_offsetx>0:
         position_str="Vehicle is " + str(center_offset) + "m right of center"        
     
     return str(int(center_curverad)),position_str
@@ -560,7 +560,7 @@ def process_video(input_video_path,output_video_path):
     white_clip = clip1.fl_image(process_video_frame)
     white_clip.write_videofile(output_video_path, audio=False)
 
-videos = glob.glob(test_images_input_folder + '*.mp4')
+videos = glob.glob(test_images_input_folder + 'project_video.mp4')
 for fname in videos:    
     outputfile=fname.replace(test_images_input_folder, test_images_output_folder)    
     process_video(fname,outputfile)
