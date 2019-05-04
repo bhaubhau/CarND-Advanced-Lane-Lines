@@ -270,12 +270,12 @@ xm_per_pix = 3.7/700 # meters per pixel in x dimension
 
 def find_lane_pixels(binary_warped):
     # Take a histogram of the bottom half of the image
-    histogram = np.sum(binary_warped[binary_warped.shape[0]//2:,:], axis=0)
+    histogram = np.sum(binary_warped[(binary_warped.shape[0]*2)//3:,:], axis=0)
     # Create an output image to draw on and visualize the result
     out_img = np.dstack((binary_warped, binary_warped, binary_warped))
     # Find the peak of the left and right halves of the histogram
     # These will be the starting point for the left and right lines
-    midpoint = np.int((histogram.shape[0]*2)//3)
+    midpoint = np.int(histogram.shape[0]//2)
     leftx_base = np.argmax(histogram[:midpoint])
     rightx_base = np.argmax(histogram[midpoint:]) + midpoint
 
