@@ -131,7 +131,7 @@ def abs_sobel_thresh(img, orient='x', sobel_kernel=3, mag_thresh=(0, 255)):
 
 def mag_thresh(img, sobel_kernel=3, mag_thresh=(0, 255)):
     # Convert to grayscale
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # Take both Sobel x and y gradients
     sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=sobel_kernel)
     sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=sobel_kernel)
@@ -148,7 +148,7 @@ def mag_thresh(img, sobel_kernel=3, mag_thresh=(0, 255)):
 
 def dir_thresh(img, sobel_kernel=3, thresh=(0, np.pi/2)):
     # Grayscale
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # Calculate the x and y gradients
     sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=sobel_kernel)
     sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=sobel_kernel)
@@ -259,6 +259,9 @@ def unwarp(img):
 ###################################################################################################
 ####################################Curve fitting
 ###################################################################################################
+ym_per_pix = 30/720 # meters per pixel in y dimension
+xm_per_pix = 3.7/700 # meters per pixel in x dimension
+
 # test_file = 'test3.jpg'
 # img = cv2.imread(test_images_input_folder + test_file)
 # img_warped=warp(img)
@@ -272,7 +275,7 @@ def find_lane_pixels(binary_warped):
     out_img = np.dstack((binary_warped, binary_warped, binary_warped))
     # Find the peak of the left and right halves of the histogram
     # These will be the starting point for the left and right lines
-    midpoint = np.int(histogram.shape[0]//2)
+    midpoint = np.int((histogram.shape[0]*2)//3)
     leftx_base = np.argmax(histogram[:midpoint])
     rightx_base = np.argmax(histogram[midpoint:]) + midpoint
 
@@ -398,6 +401,7 @@ def fit_polynomial(binary_warped):
 def fit_poly(img_shape, leftx, lefty, rightx, righty):
      ### TO-DO: Fit a second order polynomial to each with np.polyfit() ###
     global left_fit,right_fit
+
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
     # Generate x and y values for plotting
@@ -489,8 +493,7 @@ def search_around_poly(binary_warped):
 ###################################################################################################
 def get_radius(left_fitx, right_fitx, ploty, center_point):    
     
-    ym_per_pix = 30/720 # meters per pixel in y dimension
-    xm_per_pix = 3.7/700 # meters per pixel in x dimension
+    global ym_per_pix,xm_per_pix
     center_fitx=(left_fitx+right_fitx)/2
     center_fit = np.polyfit(ploty*ym_per_pix, center_fitx*xm_per_pix, 2)        
     center_offsetx=center_point-center_fitx[-1]        
@@ -526,6 +529,11 @@ def get_lanes_image(img, nextFrame=False):
 
 def process_image(img, nextFrame=False):
     undistort=get_undistorted_image(img)
+    
+    img_morph=cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
+    img_morph[:,:,0] = cv2.equalizeHist(img_morph[:,:,0])
+    img_morph = cv2.cvtColor(img_morph, cv2.COLOR_YUV2BGR)
+    
     left_fitx, right_fitx, ploty, lines_image=get_lanes_image(img, nextFrame)
     result=cv2.addWeighted(undistort, 0.8, lines_image, 1, 0)
     radius, center_offset=get_radius(left_fitx, right_fitx, ploty, (undistort.shape[1])/2)
@@ -555,9 +563,9 @@ def process_video_frame(img):
 
 def process_video(input_video_path,output_video_path):
     global initialised
-    initialised=False
-    #clip1 = VideoFileClip(input_video_path).subclip(0,5)
+    initialised=False    
     clip1 = VideoFileClip(input_video_path)
+    #clip1=clip1.subclip(0,5)
     white_clip = clip1.fl_image(process_video_frame)
     white_clip.write_videofile(output_video_path, audio=False)
 
