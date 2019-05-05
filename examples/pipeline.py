@@ -359,7 +359,7 @@ def fit_polynomial(binary_warped):
     # Fit a second order polynomial to each using `np.polyfit`
     global left_fit,right_fit
     left_fit = np.polyfit(lefty, leftx, 2)
-    right_fit = np.polyfit(righty, rightx, 2)
+    right_fit = np.polyfit(righty, rightx, 2)    
 
     # Generate x and y values for plotting
     ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
@@ -398,12 +398,27 @@ def fit_polynomial(binary_warped):
 #left_fit = np.array([ 1.39704016e-04,-2.94429437e-01,4.80061572e+02])
 #right_fit = np.array([2.13760772e-04,-4.36511278e-01,1.17539007e+03])
 
+prev_left_fit=left_fit
+prev_right_fit=right_fit
+prev_frame_count=7
+
 def fit_poly(img_shape, leftx, lefty, rightx, righty):
      ### TO-DO: Fit a second order polynomial to each with np.polyfit() ###
-    global left_fit,right_fit
+    global left_fit,right_fit, prev_left_fit,prev_right_fit,prev_frame_count
 
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
+    
+    if prev_left_fit.shape[0]>prev_frame_count:
+        prev_left_fit=prev_left_fit[1:,:]
+        prev_right_fit=prev_right_fit[1:,:]
+    
+    prev_left_fit=np.vstack((prev_left_fit,left_fit))
+    prev_right_fit=np.vstack((prev_right_fit,right_fit))
+        
+    left_fit=np.average(prev_left_fit,0)
+    right_fit=np.average(prev_right_fit,0)
+
     # Generate x and y values for plotting
     ploty = np.linspace(0, img_shape[0]-1, img_shape[0])
     ### TO-DO: Calc both polynomials using ploty, left_fit and right_fit ###
@@ -416,7 +431,7 @@ def search_around_poly(binary_warped):
     # HYPERPARAMETER
     # Choose the width of the margin around the previous polynomial to search
     # The quiz grader expects 100 here, but feel free to tune on your own!
-    margin = 100
+    margin = 50
 
     # Grab activated pixels
     nonzero = binary_warped.nonzero()
@@ -555,7 +570,7 @@ def process_video_frame(img):
     global left_fit,right_fit,initialised
     if initialised==False:
         left_fit=np.array([0,0,0])
-        right_fit=np.array([0,0,0])   
+        right_fit=np.array([0,0,0])  
         initialised=True        
         return process_image(img)
     else:
