@@ -562,11 +562,11 @@ def process_image(img, nextFrame=False):
     cv2.putText(result,center_offset, (10,100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2)
     return result
 
-images = glob.glob(test_images_input_folder + '*.jpg')
-for fname in images:
-    img = cv2.imread(fname)
-    outputfile=fname.replace(test_images_input_folder, test_images_output_folder)    
-    cv2.imwrite(outputfile, process_image(img))
+# images = glob.glob(test_images_input_folder + '*.jpg')
+# for fname in images:
+#     img = cv2.imread(fname)
+#     outputfile=fname.replace(test_images_input_folder, test_images_output_folder)    
+#     cv2.imwrite(outputfile, process_image(img))
 
 ###################################################################################################
 ####################################Video processing
